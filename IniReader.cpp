@@ -465,7 +465,17 @@ bool IniReader::CheckIfAllSet()
 }
 void IniReader::InitEnumsFromStrings()
 {
-	if (ADDRESS_MAPPING_SCHEME == "scheme1")
+//------edit by Nai------//
+        if (ADDRESS_MAPPING_SCHEME == "schemex") 
+        {
+                addressMappingScheme = SchemeX;
+		if (DEBUG_INI_READER) 
+		{
+			DEBUG("ADDR SCHEME: X");
+		}
+        }
+//------edit end---------//
+	else if (ADDRESS_MAPPING_SCHEME == "scheme1")
 	{
 		addressMappingScheme = Scheme1;
 		if (DEBUG_INI_READER) 

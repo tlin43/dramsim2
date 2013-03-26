@@ -295,7 +295,37 @@ void addressMapping(uint64_t physicalAddress, unsigned &newTransactionChan, unsi
 		newTransactionRow = tempA ^ tempB;
 
 	}
+//----------edit by Nai-----------//
+        else if (addressMappingScheme == SchemeX) 
+        {
+               // basically the same as sheme4
+               // chan:rank:bank:row:col
+		tempA = physicalAddress;
+		physicalAddress = physicalAddress >> colHighBitWidth;
+		tempB = physicalAddress << colHighBitWidth;
+		newTransactionColumn = tempA ^ tempB;
 
+		tempA = physicalAddress;
+		physicalAddress = physicalAddress >> rowBitWidth;
+		tempB = physicalAddress << rowBitWidth;
+		newTransactionRow = tempA ^ tempB;
+
+		tempA = physicalAddress;
+		physicalAddress = physicalAddress >> bankBitWidth;
+		tempB = physicalAddress << bankBitWidth;
+		newTransactionBank = tempA ^ tempB;
+
+		tempA = physicalAddress;
+		physicalAddress = physicalAddress >> rankBitWidth;
+		tempB = physicalAddress << rankBitWidth;
+		newTransactionRank = tempA ^ tempB;
+
+		tempA = physicalAddress;
+		physicalAddress = physicalAddress >> channelBitWidth;
+		tempB = physicalAddress << channelBitWidth;
+		newTransactionChan = tempA ^ tempB;
+        }
+//----------edit end--------------//
 	else
 	{
 		ERROR("== Error - Unknown Address Mapping Scheme");
