@@ -103,6 +103,18 @@ void Rank::receiveFromBus(BusPacket *packet)
 			ERROR("== Error - Rank " << id << " received a READ when not allowed");
 			exit(0);
 		}
+//edit by Wells
+                 if(packet->row == bankStates[packet->bank].lastOpenRowAddress) 
+                 {
+                     ++bankStates[packet->bank].rowBufferHitTimes;
+                     PRINT("read hit address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
+                 }
+                 else
+                 {
+                     ++bankStates[packet->bank].rowBufferMissTimes;
+                     PRINT("read miss address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
+                 }
+//end-----------
 
 		//update state table
 		bankStates[packet->bank].nextPrecharge = max(bankStates[packet->bank].nextPrecharge, currentClockCycle + READ_TO_PRE_DELAY);
@@ -161,7 +173,18 @@ void Rank::receiveFromBus(BusPacket *packet)
 			bankStates[packet->bank].print();
 			exit(0);
 		}
-
+//edit by Wells
+                 if(packet->row == bankStates[packet->bank].lastOpenRowAddress) 
+                 {
+                     ++bankStates[packet->bank].rowBufferHitTimes;
+                     PRINT("write hit address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
+                 }
+                 else
+                 {
+                     ++bankStates[packet->bank].rowBufferMissTimes;
+                     PRINT("write miss address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
+                 }
+//end-----------
 		//update state table
 		bankStates[packet->bank].nextPrecharge = max(bankStates[packet->bank].nextPrecharge, currentClockCycle + WRITE_TO_PRE_DELAY);
 		for (size_t i=0;i<NUM_BANKS;i++)
@@ -214,6 +237,11 @@ void Rank::receiveFromBus(BusPacket *packet)
 
 		bankStates[packet->bank].currentBankState = RowActive;
 		bankStates[packet->bank].nextActivate = currentClockCycle + tRC;
+//edit by Wells
+                bankStates[packet->bank].lastOpenRowAddress = bankStates[packet->bank].openRowAddress;
+                PRINT("activate address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
+//end------------
+
 		bankStates[packet->bank].openRowAddress = packet->row;
 
 		//if AL is greater than one, then posted-cas is enabled - handle accordingly
@@ -246,6 +274,10 @@ void Rank::receiveFromBus(BusPacket *packet)
 			ERROR("== Error - Rank " << id << " received a PRE when not allowed");
 			exit(0);
 		}
+//edit by Wells
+//close page, clear row buffer
+                bankStates[packet->bank].openRowAddress = 0;
+//end----------
 
 		bankStates[packet->bank].currentBankState = Idle;
 		bankStates[packet->bank].nextActivate = max(bankStates[packet->bank].nextActivate, currentClockCycle + tRP);
@@ -260,6 +292,11 @@ void Rank::receiveFromBus(BusPacket *packet)
 				ERROR("== Error - Rank " << id << " received a REF when not allowed");
 				exit(0);
 			}
+//edit by Wells
+//close page, clear row buffer
+                        bankStates[i].openRowAddress = 0;
+//end----------
+
 			bankStates[i].nextActivate = currentClockCycle + tRFC;
 		}
 		delete(packet); 
@@ -383,3 +420,23 @@ void Rank::powerUp()
 		bankStates[i].currentBankState = Idle;
 	}
 }
+
+
+//edit by Wells
+void Rank::printStates(uint64_t *Hit, uint64_t *Miss)
+{
+    uint64_t totalRowBufferHit = 0;
+    uint64_t totalRowBufferMiss = 0;
+    for (size_t i=0;i<NUM_BANKS;i++)
+    {
+        totalRowBufferHit += bankStates[i].rowBufferHitTimes;
+        totalRowBufferMiss += bankStates[i].rowBufferMissTimes;
+    }
+    (*Hit) = totalRowBufferHit;
+    (*Miss) = totalRowBufferMiss;
+    PRINT("rank" << id <<": rowBuffer HitTimes  : " << totalRowBufferHit );
+    PRINT("rank" << id <<": rowBufferMissTimes  : " << totalRowBufferMiss );
+}
+//end----------
+
+

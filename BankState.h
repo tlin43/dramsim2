@@ -63,6 +63,11 @@ class BankState
 public:
 	//Fields
 	CurrentBankState currentBankState;
+//edit by Wells
+        unsigned lastOpenRowAddress;
+        uint64_t rowBufferHitTimes;
+        uint64_t rowBufferMissTimes;
+//end-----------
 	unsigned openRowAddress;
 	uint64_t nextRead;
 	uint64_t nextWrite;

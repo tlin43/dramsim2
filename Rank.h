@@ -67,6 +67,9 @@ public:
 	void update();
 	void powerUp();
 	void powerDown();
+//edit by Wells
+        void printStates(uint64_t *Hit, uint64_t *Miss);
+//end----------
 
 	//fields
 	MemoryController *memoryController;

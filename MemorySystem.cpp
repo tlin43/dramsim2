@@ -201,6 +201,20 @@ bool MemorySystem::addTransaction(Transaction *trans)
 void MemorySystem::printStats(bool finalStats)
 {
 	memoryController->printStats(finalStats);
+//edit by Wells
+    uint64_t Hit, Miss;
+    uint64_t totalHit = 0, totalMiss = 0;
+
+    for (size_t i=0;i<NUM_RANKS;i++)
+        {
+                (*ranks)[i]->printStates(&Hit, &Miss);
+        totalHit += Hit;
+        totalMiss += Miss;
+        }
+    PRINT("rowBuffer  Hit Times  : " << totalHit );
+    PRINT("rowBuffer Miss Times  : " << totalMiss );
+//end---------
+
 }
 
 

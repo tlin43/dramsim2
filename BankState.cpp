@@ -49,7 +49,12 @@ using namespace DRAMSim;
 BankState::BankState(ostream &dramsim_log_):
 		dramsim_log(dramsim_log_),
 		currentBankState(Idle),
-		openRowAddress(0),
+//edit by Wells
+                lastOpenRowAddress(0),
+                rowBufferHitTimes(0),
+                rowBufferMissTimes(0),
+//end---------------
+		openRowAddress(16384),
 		nextRead(0),
 		nextWrite(0),
 		nextActivate(0),
@@ -78,7 +83,11 @@ void BankState::print()
 	{
 		PRINT("    State : Power Down" );
 	}
-
+//edit by Wells
+    PRINT("    rowBufferHitTimes  : " << rowBufferHitTimes );
+    PRINT("    rowBufferMissTimes : " << rowBufferMissTimes );
+    PRINT("    lastOpenRowAddress : " << lastOpenRowAddress );
+//end---------
 	PRINT("    OpenRowAddress : " << openRowAddress );
 	PRINT("    nextRead       : " << nextRead );
 	PRINT("    nextWrite      : " << nextWrite );
