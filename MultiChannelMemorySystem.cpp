@@ -371,6 +371,11 @@ void MultiChannelMemorySystem::update()
 {
 	clockDomainCrosser.update(); 
 }
+void MultiChannelMemorySystem::setBL(unsigned int burstlength)
+{
+   BL = burstlength;
+}
+
 void MultiChannelMemorySystem::actual_update() 
 {
 	if (currentClockCycle == 0)

@@ -51,6 +51,7 @@ class MultiChannelMemorySystem : public SimulatorObject
 			bool willAcceptTransaction(); 
 			bool willAcceptTransaction(uint64_t addr); 
 			void update();
+                        void setBL(unsigned int burstlength);
 			void printStats(bool finalStats=false);
 			ostream &getLogFile();
 			void RegisterCallbacks( 
