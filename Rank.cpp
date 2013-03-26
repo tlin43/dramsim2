@@ -104,18 +104,18 @@ void Rank::receiveFromBus(BusPacket *packet)
 			exit(0);
 		}
 //edit by Wells
-                 if(packet->row == bankStates[packet->bank].lastOpenRowAddress) 
-                 {
-                     ++bankStates[packet->bank].rowBufferHitTimes;
-                     PRINT("read hit address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
-                 }
-                 else
-                 {
-                     ++bankStates[packet->bank].rowBufferMissTimes;
-                     PRINT("read miss address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
-                 }
+        if(packet->row == bankStates[packet->bank].lastOpenRowAddress) 
+        {
+            ++bankStates[packet->bank].rowBufferHitTimes;
+            //PRINT("read  hit address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
+        }
+        else
+        {
+            ++bankStates[packet->bank].rowBufferMissTimes;
+            //PRINT("read miss address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row<<" lastopen:"<<bankStates[packet->bank].lastOpenRowAddress);
+        }
+        bankStates[packet->bank].lastOpenRowAddress = packet->row;
 //end-----------
-
 		//update state table
 		bankStates[packet->bank].nextPrecharge = max(bankStates[packet->bank].nextPrecharge, currentClockCycle + READ_TO_PRE_DELAY);
 		for (size_t i=0;i<NUM_BANKS;i++)
@@ -174,16 +174,17 @@ void Rank::receiveFromBus(BusPacket *packet)
 			exit(0);
 		}
 //edit by Wells
-                 if(packet->row == bankStates[packet->bank].lastOpenRowAddress) 
-                 {
-                     ++bankStates[packet->bank].rowBufferHitTimes;
-                     PRINT("write hit address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
-                 }
-                 else
-                 {
-                     ++bankStates[packet->bank].rowBufferMissTimes;
-                     PRINT("write miss address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
-                 }
+        if(packet->row == bankStates[packet->bank].lastOpenRowAddress) 
+        {
+            ++bankStates[packet->bank].rowBufferHitTimes;
+            //PRINT("write  hit address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
+        }
+        else
+        {
+            ++bankStates[packet->bank].rowBufferMissTimes;
+            //PRINT("write miss address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row<<" lastopen:"<<bankStates[packet->bank].lastOpenRowAddress);
+        }
+        bankStates[packet->bank].lastOpenRowAddress = packet->row;
 //end-----------
 		//update state table
 		bankStates[packet->bank].nextPrecharge = max(bankStates[packet->bank].nextPrecharge, currentClockCycle + WRITE_TO_PRE_DELAY);
@@ -238,11 +239,11 @@ void Rank::receiveFromBus(BusPacket *packet)
 		bankStates[packet->bank].currentBankState = RowActive;
 		bankStates[packet->bank].nextActivate = currentClockCycle + tRC;
 //edit by Wells
-                bankStates[packet->bank].lastOpenRowAddress = bankStates[packet->bank].openRowAddress;
-                PRINT("activate address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row);
+		bankStates[packet->bank].lastOpenRowAddress = bankStates[packet->bank].openRowAddress;
+        bankStates[packet->bank].openRowAddress = packet->row;
+        //PRINT("activate   address: "<< packet->physicalAddress <<" bank:"<<packet->bank<<" row"<< packet->row<<" openrow:"<<bankStates[packet->bank].openRowAddress<<" lastopen:"<<bankStates[packet->bank].lastOpenRowAddress);
 //end------------
-
-		bankStates[packet->bank].openRowAddress = packet->row;
+		
 
 		//if AL is greater than one, then posted-cas is enabled - handle accordingly
 		if (AL>0)
@@ -276,9 +277,9 @@ void Rank::receiveFromBus(BusPacket *packet)
 		}
 //edit by Wells
 //close page, clear row buffer
-                bankStates[packet->bank].openRowAddress = 0;
+        bankStates[packet->bank].openRowAddress = 16384;
+        //PRINT("--precharge--");
 //end----------
-
 		bankStates[packet->bank].currentBankState = Idle;
 		bankStates[packet->bank].nextActivate = max(bankStates[packet->bank].nextActivate, currentClockCycle + tRP);
 		delete(packet); 
@@ -294,9 +295,9 @@ void Rank::receiveFromBus(BusPacket *packet)
 			}
 //edit by Wells
 //close page, clear row buffer
-                        bankStates[i].openRowAddress = 0;
+            bankStates[i].openRowAddress = 16384;
+            //PRINT("--refresh--");
 //end----------
-
 			bankStates[i].nextActivate = currentClockCycle + tRFC;
 		}
 		delete(packet); 
@@ -421,7 +422,6 @@ void Rank::powerUp()
 	}
 }
 
-
 //edit by Wells
 void Rank::printStates(uint64_t *Hit, uint64_t *Miss)
 {
@@ -438,5 +438,3 @@ void Rank::printStates(uint64_t *Hit, uint64_t *Miss)
     PRINT("rank" << id <<": rowBufferMissTimes  : " << totalRowBufferMiss );
 }
 //end----------
-
-

@@ -6,3 +6,4 @@ results/
 *.log
 DRAMSim
 libdramsim.so
+*.ini
