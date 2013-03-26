@@ -1,0 +1,8 @@
+results/
+*.o
+*.po
+*.dep
+*.swp
+*.log
+DRAMSim
+libdramsim.so
