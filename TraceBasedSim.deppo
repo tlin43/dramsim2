@@ -104,12 +104,12 @@ TraceBasedSim.po: TraceBasedSim.cpp /usr/include/c++/4.6/iostream \
  /usr/include/x86_64-linux-gnu/bits/stdlib.h \
  /usr/lib/gcc/x86_64-linux-gnu/4.6/include/stdint.h /usr/include/stdint.h \
  PrintMacros.h MemorySystem.h SimulatorObject.h MemoryController.h \
- Transaction.h BusPacket.h CommandQueue.h BankState.h Rank.h Bank.h \
- CSVWriter.h /usr/include/string.h \
+ Transaction.h BusPacket.h CommandQueue.h BankState.h IniReader.h Rank.h \
+ Bank.h CSVWriter.h /usr/include/string.h \
  /usr/include/x86_64-linux-gnu/bits/string3.h Callback.h \
  /usr/include/c++/4.6/deque /usr/include/c++/4.6/bits/stl_deque.h \
  /usr/include/c++/4.6/bits/deque.tcc MultiChannelMemorySystem.h \
- IniReader.h ClockDomain.h /usr/include/c++/4.6/cmath /usr/include/math.h \
+ ClockDomain.h /usr/include/c++/4.6/cmath /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/huge_val.h \
  /usr/include/x86_64-linux-gnu/bits/huge_valf.h \
  /usr/include/x86_64-linux-gnu/bits/huge_vall.h \

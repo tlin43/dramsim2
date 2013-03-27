@@ -100,10 +100,11 @@ MemorySystem.po: MemorySystem.cpp MemorySystem.h SimulatorObject.h \
  /usr/include/x86_64-linux-gnu/sys/sysmacros.h /usr/include/alloca.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib.h PrintMacros.h \
  MemoryController.h Transaction.h BusPacket.h CommandQueue.h BankState.h \
- Rank.h Bank.h CSVWriter.h /usr/include/string.h \
- /usr/include/x86_64-linux-gnu/bits/string3.h /usr/include/c++/4.6/map \
+ IniReader.h /usr/include/c++/4.6/sstream \
+ /usr/include/c++/4.6/bits/sstream.tcc /usr/include/c++/4.6/map \
  /usr/include/c++/4.6/bits/stl_tree.h /usr/include/c++/4.6/bits/stl_map.h \
- /usr/include/c++/4.6/bits/stl_multimap.h Callback.h \
- /usr/include/c++/4.6/deque /usr/include/c++/4.6/bits/stl_deque.h \
- /usr/include/c++/4.6/bits/deque.tcc IniReader.h \
- /usr/include/c++/4.6/sstream /usr/include/c++/4.6/bits/sstream.tcc
+ /usr/include/c++/4.6/bits/stl_multimap.h Rank.h Bank.h CSVWriter.h \
+ /usr/include/string.h /usr/include/x86_64-linux-gnu/bits/string3.h \
+ Callback.h /usr/include/c++/4.6/deque \
+ /usr/include/c++/4.6/bits/stl_deque.h \
+ /usr/include/c++/4.6/bits/deque.tcc

@@ -29,9 +29,13 @@
 *********************************************************************************/
 #ifndef ADDRESS_MAPPING_H
 #define ADDRESS_MAPPING_H
+#include "IniReader.h"
+
 namespace DRAMSim
 {
-	void addressMapping(uint64_t physicalAddress, unsigned &channel, unsigned &rank, unsigned &bank, unsigned &row, unsigned &col);
+// MY CODE
+// modified function
+	void addressMapping(ConfigSet * local_config, uint64_t physicalAddress, unsigned &channel, unsigned &rank, unsigned &bank, unsigned &row, unsigned &col);
 }
 
 #endif

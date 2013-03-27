@@ -65,7 +65,7 @@ void BusPacket::print(uint64_t currentClockCycle, bool dataStart)
 		return;
 	}
 
-	if (VERIFICATION_OUTPUT)
+	if (0)//(VERIFICATION_OUTPUT)
 	{
 		switch (busPacketType)
 		{

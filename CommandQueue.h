@@ -46,7 +46,7 @@
 #include "Transaction.h"
 #include "SystemConfiguration.h"
 #include "SimulatorObject.h"
-
+#include "IniReader.h"
 using namespace std;
 
 namespace DRAMSim
@@ -62,7 +62,7 @@ public:
 	typedef vector<BusPacket2D> BusPacket3D;
 
 	//functions
-	CommandQueue(vector< vector<BankState> > &states, ostream &dramsim_log);
+	CommandQueue(vector< vector<BankState> > &states, ostream &dramsim_log, ConfigSet * local_config_);
 	virtual ~CommandQueue(); 
 
 	void enqueue(BusPacket *newBusPacket);
@@ -75,8 +75,11 @@ public:
 	void update(); //SimulatorObject requirement
 	vector<BusPacket *> &getCommandQueue(unsigned rank, unsigned bank);
 
+
 	//fields
 	
+	ConfigSet * local_config;
+
 	BusPacket3D queues; // 3D array of BusPacket pointers
 	vector< vector<BankState> > &bankStates;
 private:

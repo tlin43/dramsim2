@@ -45,6 +45,7 @@
 #include "Transaction.h"
 #include "Callback.h"
 #include "CSVWriter.h"
+#include "IniReader.h"
 #include <deque>
 
 namespace DRAMSim
@@ -55,7 +56,7 @@ class MemorySystem : public SimulatorObject
 	ostream &dramsim_log;
 public:
 	//functions
-	MemorySystem(unsigned id, unsigned megsOfMemory, CSVWriter &csvOut_, ostream &dramsim_log_);
+	MemorySystem(unsigned id, unsigned megsOfMemory, CSVWriter &csvOut_, ostream &dramsim_log_, ConfigSet * local_config_);
 	virtual ~MemorySystem();
 	void update();
 	bool addTransaction(Transaction *trans);
@@ -79,7 +80,9 @@ public:
 	//TODO: make this a functor as well?
 	static powerCallBack_t ReportPower;
 	unsigned systemID;
-
+//-----------MY CODE------------//
+	ConfigSet * local_config;
+//------END OF MY CODE----------//
 private:
 	CSVWriter &csvOut;
 };

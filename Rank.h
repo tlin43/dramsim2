@@ -39,6 +39,7 @@
 #include "SystemConfiguration.h"
 #include "Bank.h"
 #include "BankState.h"
+#include "IniReader.h"
 
 using namespace std;
 using namespace DRAMSim;
@@ -58,7 +59,7 @@ private:
 
 public:
 	//functions
-	Rank(ostream &dramsim_log_);
+	Rank(ostream &dramsim_log_, ConfigSet * local_config_);
 	virtual ~Rank(); 
 	void receiveFromBus(BusPacket *packet);
 	void attachMemoryController(MemoryController *mc);
@@ -70,6 +71,10 @@ public:
 //edit by Wells
         void printStates(uint64_t *Hit, uint64_t *Miss);
 //end----------
+
+// MY CODE
+	ConfigSet * local_config;
+// END OF MY CODE
 
 	//fields
 	MemoryController *memoryController;

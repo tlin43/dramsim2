@@ -47,6 +47,7 @@
 #include "SimulatorObject.h"
 #include "BankState.h"
 #include "BusPacket.h"
+#include "IniReader.h"
 #include <iostream>
 
 namespace DRAMSim
@@ -62,13 +63,14 @@ class Bank
 
 public:
 	//functions
-	Bank(ostream &dramsim_log_);
+	Bank(ostream &dramsim_log_, ConfigSet * local_config_);
 	void read(BusPacket *busPacket);
 	void write(const BusPacket *busPacket);
 
 	//fields
 	BankState currentState;
 
+        ConfigSet * local_config;
 private:
 	// private member
 	std::vector<DataStruct *> rowEntries;

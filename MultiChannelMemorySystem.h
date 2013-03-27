@@ -66,6 +66,10 @@ class MultiChannelMemorySystem : public SimulatorObject
 	std::ofstream visDataOut;
 	ofstream dramsim_log; 
 
+//--------------MY CODE------------//
+
+	ConfigSet local_config;
+//----------END OF MY CODE---------//
 	private:
 		unsigned findChannelNumber(uint64_t addr);
 		void actual_update(); 

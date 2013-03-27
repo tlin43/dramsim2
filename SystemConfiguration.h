@@ -59,8 +59,8 @@ extern std::ofstream cmd_verify_out; //used by BusPacket.cpp if VERIFICATION_OUT
 //extern std::ofstream visDataOut;
 
 //TODO: namespace these to DRAMSim:: 
-extern bool VERIFICATION_OUTPUT; // output suitable to feed to modelsim
-
+//extern bool VERIFICATION_OUTPUT; // output suitable to feed to modelsim
+/*
 extern bool DEBUG_TRANS_Q;
 extern bool DEBUG_CMD_Q;
 extern bool DEBUG_ADDR_MAP;
@@ -78,15 +78,18 @@ extern unsigned NUM_CHANS;
 extern unsigned NUM_ROWS;
 extern unsigned NUM_COLS;
 extern unsigned DEVICE_WIDTH;
-
+*/
 //in nanoseconds
+/*
 extern unsigned REFRESH_PERIOD;
 extern float tCK;
 
 extern unsigned CL;
-extern unsigned AL;
-#define RL (CL+AL)
+extern unsigned AL; 
+*/ 
+#define RL (local_config->CL+local_config->AL)
 #define WL (RL-1)
+/*
 extern unsigned BL;
 extern unsigned tRAS;
 extern unsigned tRCD;
@@ -104,23 +107,24 @@ extern unsigned tCKE;
 extern unsigned tXP;
 
 extern unsigned tCMD;
-
+*/
 /* For power parameters (current and voltage), see externs in MemoryController.cpp */ 
 
-extern unsigned NUM_DEVICES;
+//extern unsigned NUM_DEVICES;
 
 //same bank
-#define READ_TO_PRE_DELAY (AL+BL/2+ max(tRTP,tCCD)-tCCD)
-#define WRITE_TO_PRE_DELAY (WL+BL/2+tWR)
-#define READ_TO_WRITE_DELAY (RL+BL/2+tRTRS-WL)
-#define READ_AUTOPRE_DELAY (AL+tRTP+tRP)
-#define WRITE_AUTOPRE_DELAY (WL+BL/2+tWR+tRP)
-#define WRITE_TO_READ_DELAY_B (WL+BL/2+tWTR) //interbank
-#define WRITE_TO_READ_DELAY_R (WL+BL/2+tRTRS-RL) //interrank
+#define READ_TO_PRE_DELAY (local_config->AL+local_config->BL/2+ max(local_config->tRTP,local_config->tCCD)-local_config->tCCD)
+#define WRITE_TO_PRE_DELAY (WL+local_config->BL/2+local_config->tWR)
+#define READ_TO_WRITE_DELAY (RL+local_config->BL/2+local_config->tRTRS-WL)
+#define READ_AUTOPRE_DELAY (local_config->AL+local_config->tRTP+local_config->tRP)
+#define WRITE_AUTOPRE_DELAY (WL+local_config->BL/2+local_config->tWR+local_config->tRP)
+#define WRITE_TO_READ_DELAY_B (WL+local_config->BL/2+local_config->tWTR) //interbank
+#define WRITE_TO_READ_DELAY_R (WL+local_config->BL/2+local_config->tRTRS-RL) //interrank
 
-extern unsigned JEDEC_DATA_BUS_BITS;
+//extern unsigned JEDEC_DATA_BUS_BITS;
 
 //Memory Controller related parameters
+/*
 extern unsigned TRANS_QUEUE_DEPTH;
 extern unsigned CMD_QUEUE_DEPTH;
 
@@ -132,6 +136,7 @@ extern std::string ROW_BUFFER_POLICY;
 extern std::string SCHEDULING_POLICY;
 extern std::string ADDRESS_MAPPING_SCHEME;
 extern std::string QUEUING_STRUCTURE;
+*/
 
 enum TraceType
 {

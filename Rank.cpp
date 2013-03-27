@@ -37,14 +37,15 @@
 using namespace std;
 using namespace DRAMSim;
 
-Rank::Rank(ostream &dramsim_log_) :
+Rank::Rank(ostream &dramsim_log_, ConfigSet * local_config_) :
 	id(-1),
 	dramsim_log(dramsim_log_),
 	isPowerDown(false),
 	refreshWaiting(false),
 	readReturnCountdown(0),
-	banks(NUM_BANKS, Bank(dramsim_log_)),
-	bankStates(NUM_BANKS, BankState(dramsim_log_))
+	banks(local_config_->NUM_BANKS, Bank(dramsim_log_, local_config_)),
+	bankStates(local_config_->NUM_BANKS, BankState(dramsim_log_)),
+	local_config(local_config_)
 
 {
 
@@ -81,12 +82,12 @@ Rank::~Rank()
 }
 void Rank::receiveFromBus(BusPacket *packet)
 {
-	if (DEBUG_BUS)
+	if (local_config->DEBUG_BUS)
 	{
 		PRINTN(" -- R" << this->id << " Receiving On Bus    : ");
 		packet->print();
 	}
-	if (VERIFICATION_OUTPUT)
+	if (local_config->VERIFICATION_OUTPUT)
 	{
 		packet->print(currentClockCycle,false);
 	}
@@ -118,9 +119,9 @@ void Rank::receiveFromBus(BusPacket *packet)
 //end-----------
 		//update state table
 		bankStates[packet->bank].nextPrecharge = max(bankStates[packet->bank].nextPrecharge, currentClockCycle + READ_TO_PRE_DELAY);
-		for (size_t i=0;i<NUM_BANKS;i++)
+		for (size_t i=0;i<local_config->NUM_BANKS;i++)
 		{
-			bankStates[i].nextRead = max(bankStates[i].nextRead, currentClockCycle + max(tCCD, BL/2));
+			bankStates[i].nextRead = max(bankStates[i].nextRead, currentClockCycle + max(local_config->tCCD, local_config->BL/2));
 			bankStates[i].nextWrite = max(bankStates[i].nextWrite, currentClockCycle + READ_TO_WRITE_DELAY);
 		}
 
@@ -146,10 +147,10 @@ void Rank::receiveFromBus(BusPacket *packet)
 		//update state table
 		bankStates[packet->bank].currentBankState = Idle;
 		bankStates[packet->bank].nextActivate = max(bankStates[packet->bank].nextActivate, currentClockCycle + READ_AUTOPRE_DELAY);
-		for (size_t i=0;i<NUM_BANKS;i++)
+		for (size_t i=0;i<local_config->NUM_BANKS;i++)
 		{
 			//will set next read/write for all banks - including current (which shouldnt matter since its now idle)
-			bankStates[i].nextRead = max(bankStates[i].nextRead, currentClockCycle + max(BL/2, tCCD));
+			bankStates[i].nextRead = max(bankStates[i].nextRead, currentClockCycle + max(local_config->BL/2, local_config->tCCD));
 			bankStates[i].nextWrite = max(bankStates[i].nextWrite, currentClockCycle + READ_TO_WRITE_DELAY);
 		}
 
@@ -188,10 +189,10 @@ void Rank::receiveFromBus(BusPacket *packet)
 //end-----------
 		//update state table
 		bankStates[packet->bank].nextPrecharge = max(bankStates[packet->bank].nextPrecharge, currentClockCycle + WRITE_TO_PRE_DELAY);
-		for (size_t i=0;i<NUM_BANKS;i++)
+		for (size_t i=0;i<local_config->NUM_BANKS;i++)
 		{
 			bankStates[i].nextRead = max(bankStates[i].nextRead, currentClockCycle + WRITE_TO_READ_DELAY_B);
-			bankStates[i].nextWrite = max(bankStates[i].nextWrite, currentClockCycle + max(BL/2, tCCD));
+			bankStates[i].nextWrite = max(bankStates[i].nextWrite, currentClockCycle + max(local_config->BL/2, local_config->tCCD));
 		}
 
 		//take note of where data is going when it arrives
@@ -213,9 +214,9 @@ void Rank::receiveFromBus(BusPacket *packet)
 		//update state table
 		bankStates[packet->bank].currentBankState = Idle;
 		bankStates[packet->bank].nextActivate = max(bankStates[packet->bank].nextActivate, currentClockCycle + WRITE_AUTOPRE_DELAY);
-		for (size_t i=0;i<NUM_BANKS;i++)
+		for (size_t i=0;i<local_config->NUM_BANKS;i++)
 		{
-			bankStates[i].nextWrite = max(bankStates[i].nextWrite, currentClockCycle + max(tCCD, BL/2));
+			bankStates[i].nextWrite = max(bankStates[i].nextWrite, currentClockCycle + max(local_config->tCCD, local_config->BL/2));
 			bankStates[i].nextRead = max(bankStates[i].nextRead, currentClockCycle + WRITE_TO_READ_DELAY_B);
 		}
 
@@ -237,7 +238,7 @@ void Rank::receiveFromBus(BusPacket *packet)
 		}
 
 		bankStates[packet->bank].currentBankState = RowActive;
-		bankStates[packet->bank].nextActivate = currentClockCycle + tRC;
+		bankStates[packet->bank].nextActivate = currentClockCycle + local_config->tRC;
 //edit by Wells
 		bankStates[packet->bank].lastOpenRowAddress = bankStates[packet->bank].openRowAddress;
         bankStates[packet->bank].openRowAddress = packet->row;
@@ -246,23 +247,23 @@ void Rank::receiveFromBus(BusPacket *packet)
 		
 
 		//if AL is greater than one, then posted-cas is enabled - handle accordingly
-		if (AL>0)
+		if (local_config->AL>0)
 		{
-			bankStates[packet->bank].nextWrite = currentClockCycle + (tRCD-AL);
-			bankStates[packet->bank].nextRead = currentClockCycle + (tRCD-AL);
+			bankStates[packet->bank].nextWrite = currentClockCycle + (local_config->tRCD-local_config->AL);
+			bankStates[packet->bank].nextRead = currentClockCycle + (local_config->tRCD-local_config->AL);
 		}
 		else
 		{
-			bankStates[packet->bank].nextWrite = currentClockCycle + (tRCD-AL);
-			bankStates[packet->bank].nextRead = currentClockCycle + (tRCD-AL);
+			bankStates[packet->bank].nextWrite = currentClockCycle + (local_config->tRCD-local_config->AL);
+			bankStates[packet->bank].nextRead = currentClockCycle + (local_config->tRCD-local_config->AL);
 		}
 
-		bankStates[packet->bank].nextPrecharge = currentClockCycle + tRAS;
-		for (size_t i=0;i<NUM_BANKS;i++)
+		bankStates[packet->bank].nextPrecharge = currentClockCycle + local_config->tRAS;
+		for (size_t i=0;i<local_config->NUM_BANKS;i++)
 		{
 			if (i != packet->bank)
 			{
-				bankStates[i].nextActivate = max(bankStates[i].nextActivate, currentClockCycle + tRRD);
+				bankStates[i].nextActivate = max(bankStates[i].nextActivate, currentClockCycle + local_config->tRRD);
 			}
 		}
 		delete(packet); 
@@ -281,12 +282,12 @@ void Rank::receiveFromBus(BusPacket *packet)
         //PRINT("--precharge--");
 //end----------
 		bankStates[packet->bank].currentBankState = Idle;
-		bankStates[packet->bank].nextActivate = max(bankStates[packet->bank].nextActivate, currentClockCycle + tRP);
+		bankStates[packet->bank].nextActivate = max(bankStates[packet->bank].nextActivate, currentClockCycle + local_config->tRP);
 		delete(packet); 
 		break;
 	case REFRESH:
 		refreshWaiting = false;
-		for (size_t i=0;i<NUM_BANKS;i++)
+		for (size_t i=0;i<local_config->NUM_BANKS;i++)
 		{
 			if (bankStates[i].currentBankState != Idle)
 			{
@@ -298,7 +299,7 @@ void Rank::receiveFromBus(BusPacket *packet)
             bankStates[i].openRowAddress = 16384;
             //PRINT("--refresh--");
 //end----------
-			bankStates[i].nextActivate = currentClockCycle + tRFC;
+			bankStates[i].nextActivate = currentClockCycle + local_config->tRFC;
 		}
 		delete(packet); 
 		break;
@@ -363,13 +364,13 @@ void Rank::update()
 		// ready to go out on the bus
 
 		outgoingDataPacket = readReturnPacket[0];
-		dataCyclesLeft = BL/2;
+		dataCyclesLeft = local_config->BL/2;
 
 		// remove the packet from the ranks
 		readReturnPacket.erase(readReturnPacket.begin());
 		readReturnCountdown.erase(readReturnCountdown.begin());
 
-		if (DEBUG_BUS)
+		if (local_config->DEBUG_BUS)
 		{
 			PRINTN(" -- R" << this->id << " Issuing On Data Bus : ");
 			outgoingDataPacket->print();
@@ -383,7 +384,7 @@ void Rank::update()
 void Rank::powerDown()
 {
 	//perform checks
-	for (size_t i=0;i<NUM_BANKS;i++)
+	for (size_t i=0;i<local_config->NUM_BANKS;i++)
 	{
 		if (bankStates[i].currentBankState != Idle)
 		{
@@ -391,7 +392,7 @@ void Rank::powerDown()
 			exit(0);
 		}
 
-		bankStates[i].nextPowerUp = currentClockCycle + tCKE;
+		bankStates[i].nextPowerUp = currentClockCycle + local_config->tCKE;
 		bankStates[i].currentBankState = PowerDown;
 	}
 
@@ -409,7 +410,7 @@ void Rank::powerUp()
 
 	isPowerDown = false;
 
-	for (size_t i=0;i<NUM_BANKS;i++)
+	for (size_t i=0;i<local_config->NUM_BANKS;i++)
 	{
 		if (bankStates[i].nextPowerUp > currentClockCycle)
 		{
@@ -417,7 +418,7 @@ void Rank::powerUp()
 			ERROR(bankStates[i].nextPowerUp << "    " << currentClockCycle);
 			exit(0);
 		}
-		bankStates[i].nextActivate = currentClockCycle + tXP;
+		bankStates[i].nextActivate = currentClockCycle + local_config->tXP;
 		bankStates[i].currentBankState = Idle;
 	}
 }
@@ -427,14 +428,14 @@ void Rank::printStates(uint64_t *Hit, uint64_t *Miss)
 {
     uint64_t totalRowBufferHit = 0;
     uint64_t totalRowBufferMiss = 0;
-    for (size_t i=0;i<NUM_BANKS;i++)
+    for (size_t i=0;i<local_config->NUM_BANKS;i++)
     {
         totalRowBufferHit += bankStates[i].rowBufferHitTimes;
         totalRowBufferMiss += bankStates[i].rowBufferMissTimes;
     }
     (*Hit) = totalRowBufferHit;
     (*Miss) = totalRowBufferMiss;
-    PRINT("rank" << id <<": rowBuffer HitTimes  : " << totalRowBufferHit );
-    PRINT("rank" << id <<": rowBufferMissTimes  : " << totalRowBufferMiss );
+    PRINT("rank" << id <<": rowBuffer  HitTimes  : " << totalRowBufferHit );
+    PRINT("rank" << id <<": rowBuffer MissTimes  : " << totalRowBufferMiss );
 }
 //end----------

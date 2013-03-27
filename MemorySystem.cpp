@@ -52,12 +52,13 @@ namespace DRAMSim {
 
 powerCallBack_t MemorySystem::ReportPower = NULL;
 
-MemorySystem::MemorySystem(unsigned id, unsigned int megsOfMemory, CSVWriter &csvOut_, ostream &dramsim_log_) :
+MemorySystem::MemorySystem(unsigned id, unsigned int megsOfMemory, CSVWriter &csvOut_, ostream &dramsim_log_, ConfigSet * local_config_) :
 		dramsim_log(dramsim_log_),
 		ReturnReadData(NULL),
 		WriteDataDone(NULL),
 		systemID(id),
-		csvOut(csvOut_)
+		csvOut(csvOut_),
+	        local_config(local_config_)
 {
 	currentClockCycle = 0;
 
@@ -109,33 +110,33 @@ MemorySystem::MemorySystem(unsigned id, unsigned int megsOfMemory, CSVWriter &cs
 	*********************/
 
 	// number of bytes per rank
-	unsigned long megsOfStoragePerRank = ((((long long)NUM_ROWS * (NUM_COLS * DEVICE_WIDTH) * NUM_BANKS) * ((long long)JEDEC_DATA_BUS_BITS / DEVICE_WIDTH)) / 8) >> 20;
+	unsigned long megsOfStoragePerRank = ((((long long)local_config->NUM_ROWS * (local_config->NUM_COLS * local_config->DEVICE_WIDTH) * local_config->NUM_BANKS) * ((long long)local_config->JEDEC_DATA_BUS_BITS / local_config->DEVICE_WIDTH)) / 8) >> 20;
 
 	// If this is set, effectively override the number of ranks
 	if (megsOfMemory != 0)
 	{
-		NUM_RANKS = megsOfMemory / megsOfStoragePerRank;
-		if (NUM_RANKS == 0)
+		local_config->NUM_RANKS = megsOfMemory / megsOfStoragePerRank;
+		if (local_config->NUM_RANKS == 0)
 		{
 			PRINT("WARNING: Cannot create memory system with "<<megsOfMemory<<"MB, defaulting to minimum size of "<<megsOfStoragePerRank<<"MB");
-			NUM_RANKS=1;
+			local_config->NUM_RANKS=1;
 		}
 	}
 
-	NUM_DEVICES = JEDEC_DATA_BUS_BITS/DEVICE_WIDTH;
-	TOTAL_STORAGE = (NUM_RANKS * megsOfStoragePerRank); 
+	local_config->NUM_DEVICES = local_config->JEDEC_DATA_BUS_BITS/local_config->DEVICE_WIDTH;
+	local_config->TOTAL_STORAGE = (local_config->NUM_RANKS * megsOfStoragePerRank); 
 
-	DEBUG("CH. " <<systemID<<" TOTAL_STORAGE : "<< TOTAL_STORAGE << "MB | "<<NUM_RANKS<<" Ranks | "<< NUM_DEVICES <<" Devices per rank");
+	DEBUG("CH. " <<systemID<<" TOTAL_STORAGE : "<< local_config->TOTAL_STORAGE << "MB | "<<local_config->NUM_RANKS<<" Ranks | "<< local_config->NUM_DEVICES <<" Devices per rank");
 
 
-	memoryController = new MemoryController(this, csvOut, dramsim_log);
+	memoryController = new MemoryController(this, csvOut, dramsim_log, local_config);
 
 	// TODO: change to other vector constructor?
 	ranks = new vector<Rank *>();
 
-	for (size_t i=0; i<NUM_RANKS; i++)
+	for (size_t i=0; i<local_config->NUM_RANKS; i++)
 	{
-		Rank *r = new Rank(dramsim_log);
+		Rank *r = new Rank(dramsim_log, local_config);
 		r->setId(i);
 		r->attachMemoryController(memoryController);
 		ranks->push_back(r);
@@ -155,14 +156,14 @@ MemorySystem::~MemorySystem()
 
 	delete(memoryController);
 
-	for (size_t i=0; i<NUM_RANKS; i++)
+	for (size_t i=0; i<local_config->NUM_RANKS; i++)
 	{
 		delete (*ranks)[i];
 	}
 	ranks->clear();
 	delete(ranks);
 
-	if (VERIFICATION_OUTPUT)
+	if (local_config->VERIFICATION_OUTPUT)
 	{
 		cmd_verify_out.flush();
 		cmd_verify_out.close();
@@ -205,7 +206,7 @@ void MemorySystem::printStats(bool finalStats)
     uint64_t Hit, Miss;
     uint64_t totalHit = 0, totalMiss = 0;
 
-    for (size_t i=0;i<NUM_RANKS;i++)
+    for (size_t i=0;i<local_config->NUM_RANKS;i++)
         {
                 (*ranks)[i]->printStates(&Hit, &Miss);
         totalHit += Hit;
@@ -226,7 +227,7 @@ void MemorySystem::update()
 
 	//updates the state of each of the objects
 	// NOTE - do not change order
-	for (size_t i=0;i<NUM_RANKS;i++)
+	for (size_t i=0;i<local_config->NUM_RANKS;i++)
 	{
 		(*ranks)[i]->update();
 	}
@@ -240,7 +241,7 @@ void MemorySystem::update()
 	memoryController->update();
 
 	//simply increments the currentClockCycle field for each object
-	for (size_t i=0;i<NUM_RANKS;i++)
+	for (size_t i=0;i<local_config->NUM_RANKS;i++)
 	{
 		(*ranks)[i]->step();
 	}

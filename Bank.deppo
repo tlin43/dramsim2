@@ -99,4 +99,8 @@ Bank.po: Bank.cpp Bank.h SystemConfiguration.h \
  /usr/include/x86_64-linux-gnu/sys/sysmacros.h /usr/include/alloca.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib.h \
  /usr/lib/gcc/x86_64-linux-gnu/4.6/include/stdint.h /usr/include/stdint.h \
- PrintMacros.h SimulatorObject.h BankState.h BusPacket.h
+ PrintMacros.h SimulatorObject.h BankState.h BusPacket.h IniReader.h \
+ /usr/include/c++/4.6/sstream /usr/include/c++/4.6/bits/sstream.tcc \
+ /usr/include/c++/4.6/map /usr/include/c++/4.6/bits/stl_tree.h \
+ /usr/include/c++/4.6/bits/stl_map.h \
+ /usr/include/c++/4.6/bits/stl_multimap.h

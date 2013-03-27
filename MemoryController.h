@@ -45,6 +45,7 @@
 #include "BankState.h"
 #include "Rank.h"
 #include "CSVWriter.h"
+#include "IniReader.h"
 #include <map>
 
 using namespace std;
@@ -57,7 +58,7 @@ class MemoryController : public SimulatorObject
 
 public:
 	//functions
-	MemoryController(MemorySystem* ms, CSVWriter &csvOut_, ostream &dramsim_log_);
+	MemoryController(MemorySystem* ms, CSVWriter &csvOut_, ostream &dramsim_log_, ConfigSet * local_config_);
 	virtual ~MemoryController();
 
 	bool addTransaction(Transaction *trans);
@@ -69,6 +70,9 @@ public:
 	void printStats(bool finalStats = false);
 	void resetStats(); 
 
+//-----------MY CODE------------//
+	ConfigSet * local_config;
+//------END OF MY CODE----------//
 
 	//fields
 	vector<Transaction *> transactionQueue;

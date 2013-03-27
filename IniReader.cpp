@@ -201,7 +201,7 @@ static ConfigMap configMap[] =
 	{"", NULL, UINT, SYS_PARAM, false} // tracer value to signify end of list; if you delete it, epic fail will result
 };
 
-void IniReader::WriteParams(std::ofstream &visDataOut, paramType type)
+void IniReader::WriteParams(ConfigSet * local_config, std::ofstream &visDataOut, paramType type)
 {
 	for (size_t i=0; configMap[i].variablePtr != NULL; i++)
 	{
@@ -239,17 +239,17 @@ void IniReader::WriteParams(std::ofstream &visDataOut, paramType type)
 	}
 	if (type == SYS_PARAM)
 	{
-		visDataOut<<"NUM_RANKS="<<NUM_RANKS <<"\n";
+		visDataOut<<"NUM_RANKS="<<local_config->NUM_RANKS <<"\n";
 	}
 }
-void IniReader::WriteValuesOut(std::ofstream &visDataOut)
+void IniReader::WriteValuesOut(ConfigSet *local_config, std::ofstream &visDataOut)
 {
 	visDataOut<<"!!SYSTEM_INI"<<endl;
 
-	WriteParams(visDataOut, SYS_PARAM); 
+	WriteParams(local_config, visDataOut, SYS_PARAM); 
 	visDataOut<<"!!DEVICE_INI"<<endl;
 
-	WriteParams(visDataOut, DEV_PARAM); 
+	WriteParams(local_config, visDataOut, DEV_PARAM); 
 	visDataOut<<"!!EPOCH_DATA"<<endl;
 
 }
@@ -604,5 +604,428 @@ void IniReader::InitEnumsFromStrings()
 	}
 
 }
+
+//------------------------------MY CODE------------------------------//
+ConfigSet::ConfigSet()
+{
+   int i=0;
+   for (i=0;i<128;i++) 
+   {
+      // init with {"", NULL, UINT, SYS_PARAM, false} 
+      local_configMap[i].iniKey="";
+      local_configMap[i].variablePtr = NULL;
+      local_configMap[i].variableType = UINT;
+      local_configMap[i].parameterType = SYS_PARAM;
+      local_configMap[i].wasSet = false;
+   }
+
+   i=0;
+      MY_DEFINE_UINT_PARAM(local_configMap[i],NUM_BANKS,DEV_PARAM)
+      MY_DEFINE_UINT_PARAM(local_configMap[i],NUM_ROWS,DEV_PARAM)
+      MY_DEFINE_UINT_PARAM(local_configMap[i],NUM_COLS,DEV_PARAM)
+      MY_DEFINE_UINT_PARAM(local_configMap[i],DEVICE_WIDTH,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],REFRESH_PERIOD,DEV_PARAM)
+     MY_DEFINE_FLOAT_PARAM(local_configMap[i],tCK,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],CL,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],AL,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],BL,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tRAS,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tRCD,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tRRD,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tRC,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tRP,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tCCD,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tRTP,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tWTR,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tWR,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tRTRS,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tRFC,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tFAW,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tCKE,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tXP,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],tCMD,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD0,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD1,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD2P,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD2Q,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD2N,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD3Pf,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD3Ps,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD3N,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD4W,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD4R,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD5,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD6,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD6L,DEV_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],IDD7,DEV_PARAM)
+     MY_DEFINE_FLOAT_PARAM(local_configMap[i],Vdd,DEV_PARAM)
+
+     MY_DEFINE_UINT_PARAM(local_configMap[i],NUM_CHANS,SYS_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],JEDEC_DATA_BUS_BITS,SYS_PARAM)
+
+     //Memory Controller related parameters
+     MY_DEFINE_UINT_PARAM(local_configMap[i],TRANS_QUEUE_DEPTH,SYS_PARAM)
+     MY_DEFINE_UINT_PARAM(local_configMap[i],CMD_QUEUE_DEPTH,SYS_PARAM)
+
+     MY_DEFINE_UINT_PARAM(local_configMap[i],EPOCH_LENGTH,SYS_PARAM)
+     //Power
+     MY_DEFINE_BOOL_PARAM(local_configMap[i],USE_LOW_POWER,SYS_PARAM)
+
+     MY_DEFINE_UINT_PARAM(local_configMap[i],TOTAL_ROW_ACCESSES,SYS_PARAM)
+     MY_DEFINE_STRING_PARAM(local_configMap[i],ROW_BUFFER_POLICY,SYS_PARAM)
+     MY_DEFINE_STRING_PARAM(local_configMap[i],SCHEDULING_POLICY,SYS_PARAM)
+     MY_DEFINE_STRING_PARAM(local_configMap[i],ADDRESS_MAPPING_SCHEME,SYS_PARAM)
+     MY_DEFINE_STRING_PARAM(local_configMap[i],QUEUING_STRUCTURE,SYS_PARAM)
+     // debug flags
+     MY_DEFINE_BOOL_PARAM(local_configMap[i],DEBUG_TRANS_Q,SYS_PARAM)
+     MY_DEFINE_BOOL_PARAM(local_configMap[i],DEBUG_CMD_Q,SYS_PARAM)
+     MY_DEFINE_BOOL_PARAM(local_configMap[i],DEBUG_ADDR_MAP,SYS_PARAM)
+     MY_DEFINE_BOOL_PARAM(local_configMap[i],DEBUG_BANKSTATE,SYS_PARAM)
+     MY_DEFINE_BOOL_PARAM(local_configMap[i],DEBUG_BUS,SYS_PARAM)
+     MY_DEFINE_BOOL_PARAM(local_configMap[i],DEBUG_BANKS,SYS_PARAM)
+     MY_DEFINE_BOOL_PARAM(local_configMap[i],DEBUG_POWER,SYS_PARAM)
+     MY_DEFINE_BOOL_PARAM(local_configMap[i],VIS_FILE_OUTPUT,SYS_PARAM)
+     MY_DEFINE_BOOL_PARAM(local_configMap[i],VERIFICATION_OUTPUT,SYS_PARAM)
+
+}
+
+bool IniReader::CheckIfAllSet(ConfigSet * currentSet)
+{
+	// check to make sure all parameters that we exepected were set
+	for (size_t i=0; currentSet->local_configMap[i].variablePtr != NULL; i++)
+	{
+		if (!currentSet->local_configMap[i].wasSet)
+		{
+			DEBUG("WARNING: KEY "<<currentSet->local_configMap[i].iniKey<<" NOT FOUND IN INI FILE.");
+			switch (currentSet->local_configMap[i].variableType)
+			{
+				//the string and bool values can be defaulted, but generally we need all the numeric values to be set to continue
+			case UINT:
+			case UINT64:
+			case FLOAT:
+				ERROR("Cannot continue without key '"<<currentSet->local_configMap[i].iniKey<<"' set.");
+				return false;
+				break;
+			case BOOL:
+				*((bool *)currentSet->local_configMap[i].variablePtr) = false;
+				DEBUG("\tSetting Default: "<<currentSet->local_configMap[i].iniKey<<"=false");
+				break;
+			case STRING:
+				break;
+			}
+		}
+	}
+	return true;
+}
+void IniReader::InitEnumsFromStrings(ConfigSet *currentSet)
+{
+//------edit by Nai------//
+        if (currentSet->ADDRESS_MAPPING_SCHEME == "schemex") 
+        {
+                currentSet->addressMappingScheme = SchemeX;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("ADDR SCHEME: X");
+		}
+        }
+//------edit end---------//
+	else if (currentSet->ADDRESS_MAPPING_SCHEME == "scheme1")
+	{
+		currentSet->addressMappingScheme = Scheme1;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("ADDR SCHEME: 1");
+		}
+	}
+	else if (currentSet->ADDRESS_MAPPING_SCHEME == "scheme2")
+	{
+		currentSet->addressMappingScheme = Scheme2;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("ADDR SCHEME: 2");
+		}
+	}
+	else if (currentSet->ADDRESS_MAPPING_SCHEME == "scheme3")
+	{
+		currentSet->addressMappingScheme = Scheme3;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("ADDR SCHEME: 3");
+		}
+	}
+	else if (currentSet->ADDRESS_MAPPING_SCHEME == "scheme4")
+	{
+		currentSet->addressMappingScheme = Scheme4;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("ADDR SCHEME: 4");
+		}
+	}
+	else if (currentSet->ADDRESS_MAPPING_SCHEME == "scheme5")
+	{
+		currentSet->addressMappingScheme = Scheme5;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("ADDR SCHEME: 5");
+		}
+	}
+	else if (currentSet->ADDRESS_MAPPING_SCHEME == "scheme6")
+	{
+		currentSet->addressMappingScheme = Scheme6;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("ADDR SCHEME: 6");
+		}
+	}
+	else if (currentSet->ADDRESS_MAPPING_SCHEME == "scheme7")
+	{
+		currentSet->addressMappingScheme = Scheme7;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("ADDR SCHEME: 7");
+		}
+	}
+	else
+	{
+		cout << "WARNING: unknown address mapping scheme '"<<currentSet->ADDRESS_MAPPING_SCHEME<<"'; valid values are 'scheme1'...'scheme7'. Defaulting to scheme1"<<endl;
+		currentSet->addressMappingScheme = Scheme1;
+	}
+
+	if (currentSet->ROW_BUFFER_POLICY == "open_page")
+	{
+		currentSet->rowBufferPolicy = OpenPage;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("ROW BUFFER: open page");
+		}
+	}
+	else if (currentSet->ROW_BUFFER_POLICY == "close_page")
+	{
+		currentSet->rowBufferPolicy = ClosePage;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("ROW BUFFER: close page");
+		}
+	}
+	else
+	{
+		cout << "WARNING: unknown row buffer policy '"<<currentSet->ROW_BUFFER_POLICY<<"'; valid values are 'open_page' or 'close_page', Defaulting to Close Page."<<endl;
+		currentSet->rowBufferPolicy = ClosePage;
+	}
+
+	if (currentSet->QUEUING_STRUCTURE == "per_rank_per_bank")
+	{
+		currentSet->queuingStructure = PerRankPerBank;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("QUEUING STRUCT: per rank per bank");
+		}
+	}
+	else if (currentSet->QUEUING_STRUCTURE == "per_rank")
+	{
+		currentSet->queuingStructure = PerRank;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("QUEUING STRUCT: per rank");
+		}
+	}
+	else
+	{
+		cout << "WARNING: Unknown queueing structure '"<<currentSet->QUEUING_STRUCTURE<<"'; valid options are 'per_rank' and 'per_rank_per_bank', defaulting to Per Rank Per Bank"<<endl;
+		currentSet->queuingStructure = PerRankPerBank;
+	}
+
+	if (currentSet->SCHEDULING_POLICY == "rank_then_bank_round_robin")
+	{
+		currentSet->schedulingPolicy = RankThenBankRoundRobin;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("SCHEDULING: Rank Then Bank");
+		}
+	}
+	else if (currentSet->SCHEDULING_POLICY == "bank_then_rank_round_robin")
+	{
+		currentSet->schedulingPolicy = BankThenRankRoundRobin;
+		if (currentSet->DEBUG_INI_READER) 
+		{
+			DEBUG("SCHEDULING: Bank Then Rank");
+		}
+	}
+	else
+	{
+		cout << "WARNING: Unknown scheduling policy '"<<currentSet->SCHEDULING_POLICY<<"'; valid options are 'rank_then_bank_round_robin' or 'bank_then_rank_round_robin'; defaulting to Bank Then Rank Round Robin" << endl;
+		currentSet->schedulingPolicy = BankThenRankRoundRobin;
+	}
+
+}
+void IniReader::SetKey(ConfigSet *currentSet, 
+		       string key, string valueString, 
+		       bool isSystemParam, size_t lineNumber)
+{
+	size_t i;
+	unsigned intValue;
+	uint64_t int64Value;
+	float floatValue;
+
+	for (i=0; currentSet->local_configMap[i].variablePtr != NULL; i++)
+	{
+		istringstream iss(valueString);
+		// match up the string in the config map with the key we parsed
+		if (key.compare(currentSet->local_configMap[i].iniKey) == 0)
+		{
+			switch (currentSet->local_configMap[i].variableType)
+			{
+				//parse and set each type of variable
+			case UINT:
+				if ((iss >> dec >> intValue).fail())
+				{
+					ERROR("could not parse line "<<lineNumber<<" (non-numeric value '"<<valueString<<"')?");
+				}
+				*((unsigned *)currentSet->local_configMap[i].variablePtr) = intValue;
+				if (currentSet->DEBUG_INI_READER)
+				{
+					DEBUG("\t - SETTING "<<currentSet->local_configMap[i].iniKey<<"="<<intValue);
+				}
+				break;
+			case UINT64:
+				if ((iss >> dec >> int64Value).fail())
+				{
+					ERROR("could not parse line "<<lineNumber<<" (non-numeric value '"<<valueString<<"')?");
+				}
+				*((uint64_t *)currentSet->local_configMap[i].variablePtr) = int64Value;
+				if (currentSet->DEBUG_INI_READER)
+				{
+					DEBUG("\t - SETTING "<<currentSet->local_configMap[i].iniKey<<"="<<int64Value);
+				}
+				break;
+			case FLOAT:
+				if ((iss >> dec >> floatValue).fail())
+				{
+					ERROR("could not parse line "<<lineNumber<<" (non-numeric value '"<<valueString<<"')?");
+				}
+				*((float *)currentSet->local_configMap[i].variablePtr) = floatValue;
+				if (currentSet->DEBUG_INI_READER)
+				{
+					DEBUG("\t - SETTING "<<currentSet->local_configMap[i].iniKey<<"="<<floatValue);
+				}
+				break;
+			case STRING:
+				*((string *)currentSet->local_configMap[i].variablePtr) = string(valueString);
+				if (currentSet->DEBUG_INI_READER)
+				{
+					DEBUG("\t - SETTING "<<currentSet->local_configMap[i].iniKey<<"="<<valueString);
+				}
+
+				break;
+			case BOOL:
+				if (valueString == "true" || valueString == "1")
+				{
+					*((bool *)currentSet->local_configMap[i].variablePtr) = true;
+				}
+				else
+				{
+					*((bool *)currentSet->local_configMap[i].variablePtr) = false;
+				}
+			}
+			// lineNumber == 0 implies that this is an override parameter from the command line, so don't bother doing these checks
+			if (lineNumber > 0)
+			{
+				if (isSystemParam && currentSet->local_configMap[i].parameterType == DEV_PARAM)
+				{
+					DEBUG("WARNING: Found device parameter "<<currentSet->local_configMap[i].iniKey<<" in system config file");
+				}
+				else if (!isSystemParam && currentSet->local_configMap[i].parameterType == SYS_PARAM)
+				{
+					DEBUG("WARNING: Found system parameter "<<currentSet->local_configMap[i].iniKey<<" in device config file");
+				}
+			}
+			// use the pointer stored in the config map to set the value of the variable
+			// to make sure all parameters are in the ini file
+			currentSet->local_configMap[i].wasSet = true;
+			break;
+		}
+	}
+
+	if (currentSet->local_configMap[i].variablePtr == NULL)
+	{
+		DEBUG("WARNING: UNKNOWN KEY '"<<key<<"' IN INI FILE");
+	}
+}
+
+void IniReader::ReadIniFile(ConfigSet *currentSet, string filename, bool isSystemFile)
+{
+	ifstream iniFile;
+	string line;
+	string key,valueString;
+
+	size_t commentIndex, equalsIndex;
+	size_t lineNumber=0;
+
+	iniFile.open(filename.c_str());
+	if (iniFile.is_open())
+	{
+		while (!iniFile.eof())
+		{
+			lineNumber++;
+			getline(iniFile, line);
+			//this can happen if the filename is actually a directory
+			if (iniFile.bad())
+			{
+				ERROR("Cannot read ini file '"<<filename<<"'");
+				exit(-1);
+			}
+			// skip zero-length lines
+			if (line.size() == 0)
+			{
+//					DEBUG("Skipping blank line "<<lineNumber);
+				continue;
+			}
+			//search for a comment char
+			if ((commentIndex = line.find_first_of(";")) != string::npos)
+			{
+				//if the comment char is the first char, ignore the whole line
+				if (commentIndex == 0)
+				{
+//						DEBUG("Skipping comment line "<<lineNumber);
+					continue;
+				}
+//					DEBUG("Truncating line at comment"<<line[commentIndex-1]);
+				//truncate the line at first comment before going on
+				line = line.substr(0,commentIndex);
+			}
+			// trim off the end spaces that might have been between the value and comment char
+			size_t whiteSpaceEndIndex;
+			if ((whiteSpaceEndIndex = line.find_last_not_of(" \t")) != string::npos)
+			{
+				line = line.substr(0,whiteSpaceEndIndex+1);
+			}
+
+			// at this point line should be a valid, commentless string
+
+			// a line has to have an equals sign
+			if ((equalsIndex = line.find_first_of("=")) == string::npos)
+			{
+				ERROR("Malformed Line "<<lineNumber<<" (missing equals)");
+				abort();
+			}
+			size_t strlen = line.size();
+			// all characters before the equals are the key
+			key = line.substr(0, equalsIndex);
+			// all characters after the equals are the value
+			valueString = line.substr(equalsIndex+1,strlen-equalsIndex);
+
+			IniReader::SetKey(currentSet, key, valueString, isSystemFile, lineNumber);
+			// got to the end of the config map without finding the key
+		}
+	}
+	else
+	{
+		ERROR ("Unable to load ini file "<<filename);
+		abort();
+	}
+}
+
+
+//--------------------------END oF MY CODE---------------------------//
 
 } // namespace DRAMSim
