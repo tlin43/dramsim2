@@ -203,7 +203,7 @@ void MemorySystem::printStats(bool finalStats)
 {
 	memoryController->printStats(finalStats);
 //edit by Wells
-    uint64_t Hit, Miss;
+    uint64_t Hit, Miss, Total;
     uint64_t totalHit = 0, totalMiss = 0;
 
     for (size_t i=0;i<local_config->NUM_RANKS;i++)
@@ -212,8 +212,9 @@ void MemorySystem::printStats(bool finalStats)
         totalHit += Hit;
         totalMiss += Miss;
         }
-    PRINT("rowBuffer  Hit Times  : " << totalHit );
-    PRINT("rowBuffer Miss Times  : " << totalMiss );
+    Total = totalHit+totalMiss;
+    PRINT("rowBuffer  Hit Times  : " << totalHit <<"  "<<totalHit/Total );
+    PRINT("rowBuffer Miss Times  : " << totalMiss <<"  "<<totalMiss/Total );
 //end---------
 
 }
